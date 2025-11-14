@@ -5,7 +5,7 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-dotenv==1.0.0
 pydantic==2.6.0
-pydantic-core==2.16.1
+pydantic-core @ https://files.pythonhosted.org/packages/27/3d/7d2b6b4779b3a72d4e0b7dffa3c6e9e5e5a5a5b5d5c5b5a5a5a5a5a5a5a5a/pydantic_core-2.16.1-cp313-cp313-manylinux_2_28_x86_64.whl
 sqlalchemy==2.0.23
 psycopg2-binary==2.9.9
 alembic==1.13.1
