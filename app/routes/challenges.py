@@ -7,6 +7,7 @@ from app.models.user_challenge import UserChallenge, UserChallengeResponse
 from app.schemas.user import UserSchema
 from app.models.user import User
 from app.utils.auth import get_current_user
+from app.models.challenge import ChallengeResponse
 
 router = APIRouter(prefix="/challenges", tags=["challenges"])
 
