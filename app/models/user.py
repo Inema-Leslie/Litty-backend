@@ -6,6 +6,7 @@ from app.utils.database import Base
 from pydantic import BaseModel, EmailStr, validator
 from datetime import datetime
 import re
+from .challenge import ChallengeResponse
 
 # Single User model
 class User(Base):
