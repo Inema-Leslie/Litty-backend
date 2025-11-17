@@ -1,4 +1,3 @@
-from __future__ import annotations
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -37,8 +36,8 @@ class UserChallengeResponse(BaseModel):
     completed_date: Optional[datetime] = None
     started_date: datetime
     
-    # Include full challenge details
-    challenge: ChallengeResponse
+    # Use string annotation - don't import ChallengeResponse here
+    challenge: 'ChallengeResponse'
 
     class Config:
         from_attributes = True

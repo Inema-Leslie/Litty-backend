@@ -2,12 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.utils.database import get_db
-from app.models.challenge import Challenge, ChallengeType, ChallengeResponse
-from app.models.user_challenge import UserChallenge, UserChallengeResponse
+from app.models.challenge import Challenge, ChallengeType
+from app.models.user_challenge import UserChallenge
 from app.schemas.user import UserSchema
 from app.models.user import User
 from app.utils.auth import get_current_user
-from app.models.challenge import ChallengeResponse
 
 router = APIRouter(prefix="/challenges", tags=["challenges"])
 
@@ -120,3 +119,8 @@ def get_user_streak(
         "longest_streak": user.longest_streak,
         "last_reading_date": user.last_reading_date
     }
+
+
+# Import response models at the bottom to avoid circular imports
+from app.models.challenge import ChallengeResponse
+from app.models.user_challenge import UserChallengeResponse
