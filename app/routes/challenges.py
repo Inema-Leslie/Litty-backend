@@ -8,9 +8,16 @@ from app.schemas.user import UserSchema
 from app.models.user import User
 from app.utils.auth import get_current_user
 
+# CHANGED: Import response models using TYPE_CHECKING to avoid circular imports
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from app.models.challenge import ChallengeResponse
+    from app.models.user_challenge import UserChallengeResponse
+
 router = APIRouter(prefix="/challenges", tags=["challenges"])
 
-@router.get("/", response_model=List[ChallengeResponse])
+# CHANGED: Use string annotation "ChallengeResponse" instead of direct reference
+@router.get("/", response_model=List["ChallengeResponse"])
 def get_challenges(
     db: Session = Depends(get_db),
     current_user: UserSchema = Depends(get_current_user)
@@ -19,7 +26,8 @@ def get_challenges(
     challenges = db.query(Challenge).filter(Challenge.is_active == True).all()
     return challenges
 
-@router.get("/user/progress", response_model=List[UserChallengeResponse])
+# CHANGED: Use string annotation "UserChallengeResponse" instead of direct reference
+@router.get("/user/progress", response_model=List["UserChallengeResponse"])
 def get_user_challenges(
     db: Session = Depends(get_db),
     current_user: UserSchema = Depends(get_current_user)
@@ -92,8 +100,8 @@ def abandon_challenge(
     
     return {"message": "Challenge abandoned successfully"}
 
-
-@router.get("/user/challenges", response_model=List[UserChallengeResponse])
+# CHANGED: Use string annotation "UserChallengeResponse" instead of direct reference
+@router.get("/user/challenges", response_model=List["UserChallengeResponse"])
 def get_user_challenges_alt(
     db: Session = Depends(get_db),
     current_user: UserSchema = Depends(get_current_user)
@@ -120,7 +128,4 @@ def get_user_streak(
         "last_reading_date": user.last_reading_date
     }
 
-
-# Import response models at the bottom to avoid circular imports
-from app.models.challenge import ChallengeResponse
-from app.models.user_challenge import UserChallengeResponse
+# REMOVED: Bottom imports are no longer needed with TYPE_CHECKING approach
