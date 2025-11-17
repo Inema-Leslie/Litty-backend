@@ -8,16 +8,10 @@ from app.schemas.user import UserSchema
 from app.models.user import User
 from app.utils.auth import get_current_user
 
-# CHANGED: Import response models using TYPE_CHECKING to avoid circular imports
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from app.models.challenge import ChallengeResponse
-    from app.models.user_challenge import UserChallengeResponse
-
 router = APIRouter(prefix="/challenges", tags=["challenges"])
 
-# CHANGED: Use string annotation "ChallengeResponse" instead of direct reference
-@router.get("/", response_model=List["ChallengeResponse"])
+# CHANGED: Remove response_model temporarily to fix circular imports
+@router.get("/")
 def get_challenges(
     db: Session = Depends(get_db),
     current_user: UserSchema = Depends(get_current_user)
@@ -26,8 +20,8 @@ def get_challenges(
     challenges = db.query(Challenge).filter(Challenge.is_active == True).all()
     return challenges
 
-# CHANGED: Use string annotation "UserChallengeResponse" instead of direct reference
-@router.get("/user/progress", response_model=List["UserChallengeResponse"])
+# CHANGED: Remove response_model temporarily to fix circular imports
+@router.get("/user/progress")
 def get_user_challenges(
     db: Session = Depends(get_db),
     current_user: UserSchema = Depends(get_current_user)
@@ -100,8 +94,8 @@ def abandon_challenge(
     
     return {"message": "Challenge abandoned successfully"}
 
-# CHANGED: Use string annotation "UserChallengeResponse" instead of direct reference
-@router.get("/user/challenges", response_model=List["UserChallengeResponse"])
+# CHANGED: Remove response_model temporarily to fix circular imports
+@router.get("/user/challenges")
 def get_user_challenges_alt(
     db: Session = Depends(get_db),
     current_user: UserSchema = Depends(get_current_user)
@@ -127,5 +121,3 @@ def get_user_streak(
         "longest_streak": user.longest_streak,
         "last_reading_date": user.last_reading_date
     }
-
-# REMOVED: Bottom imports are no longer needed with TYPE_CHECKING approach
