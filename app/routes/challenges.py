@@ -93,7 +93,7 @@ def abandon_challenge(
     
     return {"message": "Challenge abandoned successfully"}
 
-# Add these missing endpoints that your frontend is looking for
+
 @router.get("/user/challenges", response_model=List[UserChallengeResponse])
 def get_user_challenges_alt(
     db: Session = Depends(get_db),

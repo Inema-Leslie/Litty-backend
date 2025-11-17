@@ -1,3 +1,4 @@
+from __future__ import annotations
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -5,6 +6,7 @@ from app.utils.database import Base
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+
 
 class UserChallenge(Base):
     __tablename__ = "user_challenges"
@@ -21,8 +23,10 @@ class UserChallenge(Base):
     user = relationship("User", back_populates="challenges")
     challenge = relationship("Challenge", back_populates="user_progress")
 
+
 class UserChallengeCreate(BaseModel):
     challenge_id: int
+
 
 class UserChallengeResponse(BaseModel):
     id: int
@@ -34,10 +38,7 @@ class UserChallengeResponse(BaseModel):
     started_date: datetime
     
     # Include full challenge details
-    challenge: 'ChallengeResponse'
+    challenge: ChallengeResponse
 
     class Config:
         from_attributes = True
-
-# Import here to avoid circular imports
-from app.models.challenge import ChallengeResponse
