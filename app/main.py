@@ -50,8 +50,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",  # Your local React dev server
-        "https://your-frontend-url.onrender.com",  # Replace with your frontend URL
-        "https://your-frontend-url.netlify.app",   # If using Netlify
+        "https://Litty-fron-end.onrender.com",  # Replace with your frontend URL
         "http://localhost:3000",   # Alternative React dev server
     ],
     allow_credentials=True,
@@ -313,25 +312,7 @@ async def get_user_streak_direct(
         "last_reading_date": user.last_reading_date
     }
 
-# ADD THIS FOR RENDER DEPLOYMENT
-@app.on_event("startup")
-async def startup_event():
-    """Enhanced startup event with better error handling"""
-    try:
-        print("📋 Starting up Litty API...")
-        Base.metadata.create_all(bind=engine)
-        print("✅ Database tables created/verified!")
         
-        # Only seed challenges once in production
-        # Remove the forced reseeding for production
-        print("🔄 Seeding default challenges...")
-        await seed_default_challenges()
-        
-        print("🎉 Litty API startup complete!")
-    except Exception as e:
-        print(f"❌ Startup failed: {e}")
-        raise
-
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))  # Use Render's PORT environment variable
