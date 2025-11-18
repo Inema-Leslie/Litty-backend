@@ -45,19 +45,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware - Update for production
+# CORS middleware - Updated with correct frontend URL
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # Your local React dev server
-        "https://Litty-fron-end.onrender.com",  # Replace with your frontend URL
-        "http://localhost:3000",   # Alternative React dev server
+        "http://localhost:5173",
+        "https://litty-front-end.onrender.com",  # Corrected frontend URL
+        "http://localhost:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    # Add this for production
-    allow_origin_regex=r"https?://.*\.render\.com"  # Allow Render subdomains
 )
 
 # Include routes
