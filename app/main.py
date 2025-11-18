@@ -6,14 +6,14 @@ import os
 from dotenv import load_dotenv
 import logging
 
-# Configure logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load environment variables FIRST
+
 load_dotenv()
 
-# Debug: Check environment variables
+
 print("🔍 Environment Variables Debug:")
 print(f"DATABASE_URL exists: {'DATABASE_URL' in os.environ}")
 print(f"DATABASE_URL value: {os.getenv('DATABASE_URL')}")
@@ -21,15 +21,15 @@ print(f"JWT_SECRET_KEY exists: {'JWT_SECRET_KEY' in os.environ}")
 print(f"Current directory: {os.getcwd()}")
 print(f".env file exists: {os.path.exists('.env')}")
 
-# List all environment variables that start with DATABASE or JWT
+
 for key, value in os.environ.items():
     if 'DATABASE' in key or 'DB' in key or 'JWT' in key:
         print(f"Found env var: {key} = {value}")
 
 from app.utils.database import engine, Base, get_db
-from app.utils.auth import get_current_user  # ADD THIS IMPORT
+from app.utils.auth import get_current_user  
 
-# Import all models to ensure they're registered with SQLAlchemy
+
 from app.models.user import User
 from app.models.book import Book
 from app.models.user_library import UserLibrary
@@ -38,19 +38,19 @@ from app.models.challenge import Challenge
 from app.models.user_challenge import UserChallenge
 from app.models.streak import DailyReading
 
-# Create FastAPI app instance
+
 app = FastAPI(
     title="Litty API",
     description="Backend for Litty reading app",
     version="1.0.0"
 )
 
-# CORS middleware - Updated with correct frontend URL
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://litty-front-end.onrender.com",  # Corrected frontend URL
+        "https://litty-front-end.onrender.com",  
         "http://localhost:3000",
     ],
     allow_credentials=True,
@@ -58,7 +58,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routes
+
 from app.routes import simple_auth, books, reader, challenges
 
 app.include_router(simple_auth.router, prefix="/api/auth", tags=["authentication"])
@@ -66,14 +66,14 @@ app.include_router(books.router, prefix="/api/books", tags=["books"])
 app.include_router(reader.router, prefix="/api/reader", tags=["reader"])
 app.include_router(challenges.router, prefix="/api", tags=["challenges"])
 
-# MOVE TABLE CREATION TO STARTUP EVENT
+
 @app.on_event("startup")
 async def startup_event():
     print("📋 Tables to create:", Base.metadata.tables.keys())
     Base.metadata.create_all(bind=engine)
     print("✅ Database tables created/verified!")
     
-    # FORCE reseeding every time for now
+    
     print("🔄 Forcing challenge reseeding...")
     await seed_default_challenges()
 
@@ -87,13 +87,13 @@ async def seed_default_challenges():
         
     db = SessionLocal()
     try:
-        # Clear existing challenges to ensure fresh data
+        
         db.query(Challenge).delete()
         print("🧹 Cleared existing challenges")
         
-        # Create our three core challenges plus bonus ones
+        
         all_challenges = [
-            # Core Challenges We're Implementing
+            
             Challenge(
                 name="Warm-up Streak",
                 description="Read for 7 days in a row",
@@ -118,7 +118,7 @@ async def seed_default_challenges():
                 reward_points=100,
                 is_active=True
             ),
-            # Bonus Challenges
+            
             Challenge(
                 name="Bookworm Initiate",
                 description="Finish your first 5 books",
@@ -135,7 +135,7 @@ async def seed_default_challenges():
                 reward_points=500,
                 is_active=True
             ),
-            # Additional Streak Challenges
+            
             Challenge(
                 name="3-Day Starter",
                 description="Read for 3 consecutive days",
@@ -154,18 +154,18 @@ async def seed_default_challenges():
             )
         ]
         
-        # Add all to database
+        
         for challenge in all_challenges:
             db.add(challenge)
         
         db.commit()
         print(f"✅ Seeded {len(all_challenges)} default challenges!")
         
-        # Verify they were saved
+        
         saved_count = db.query(Challenge).count()
         print(f"✅ Database now has {saved_count} challenges total")
         
-        # Print challenge names for verification
+        
         challenges = db.query(Challenge).all()
         print("📋 Seeded challenges:")
         for challenge in challenges:
@@ -179,11 +179,11 @@ async def seed_default_challenges():
     finally:
         db.close()
 
-# DEBUG ENDPOINTS (Remove these for production)
+
 @app.get("/debug-all")
 async def debug_all(db: Session = Depends(get_db)):
     """Comprehensive debug information"""
-    # Check challenges
+    
     challenges = db.query(Challenge).all()
     challenges_data = [
         {
@@ -197,7 +197,6 @@ async def debug_all(db: Session = Depends(get_db)):
         for c in challenges
     ]
     
-    # Check database tables
     inspector = inspect(db.get_bind())
     tables = inspector.get_table_names()
     
@@ -280,7 +279,7 @@ async def root():
 async def health_check():
     return {"status": "healthy", "service": "Litty API"}
 
-# Add the missing endpoints directly to main.py to ensure they work
+
 @app.get("/api/user/challenges")
 async def get_user_challenges_direct(
     db: Session = Depends(get_db),
@@ -313,5 +312,5 @@ async def get_user_streak_direct(
         
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8000))  # Use Render's PORT environment variable
+    port = int(os.environ.get("PORT", 8000))  
     uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)

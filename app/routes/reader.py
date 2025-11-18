@@ -15,7 +15,7 @@ from app.models.reading_session import ReadingSession, ReadingSessionCreate, Rea
 
 router = APIRouter()
 
-# Store current reading positions in memory (in production, use Redis)
+
 current_positions = {}
 
 @router.get("/book-content/{book_id}")
@@ -28,12 +28,12 @@ async def get_book_content(
     try:
         print(f"📖 Getting content for book ID: {book_id}")
         
-        # Find book by database ID
+       
         book = db.query(Book).filter(Book.id == book_id).first()
         if not book:
             raise HTTPException(status_code=404, detail="Book not found")
         
-        # Fetch text content from Internet Archive
+        
         if not book.archive_id:
             raise HTTPException(status_code=404, detail="Book content not available")
             
@@ -43,14 +43,14 @@ async def get_book_content(
         if response.status_code == 200:
             content = response.text
             
-            # Clean and format content
+           
             content = clean_book_content(content)
             
-            # Get current position from memory or start at 0
+           
             position_key = f"{current_user.id}_{book.id}"
             current_position = current_positions.get(position_key, 0)
             
-            # Calculate reading progress based on sessions
+           
             total_reading_time = db.query(func.sum(ReadingSession.duration_minutes)).filter(
                 ReadingSession.user_id == current_user.id,
                 ReadingSession.book_id == book.id
@@ -61,7 +61,7 @@ async def get_book_content(
                 ReadingSession.book_id == book.id
             ).scalar() or 0
             
-            # Estimate progress based on reading time and position
+            
             estimated_pages = estimate_pages(content)
             progress_percentage = min(100.0, (current_position / len(content)) * 100) if content else 0
             
@@ -88,9 +88,9 @@ async def get_book_content(
 
 def clean_book_content(content: str) -> str:
     """Clean and format book content"""
-    # Remove excessive whitespace
+    
     content = re.sub(r'\n\s*\n', '\n\n', content)
-    # Remove Project Gutenberg headers/footers
+   
     content = re.sub(r'\*\*\*.*?END.*?\*\*\*', '', content, flags=re.DOTALL)
     content = re.sub(r'Project Gutenberg.*?\n', '', content, flags=re.DOTALL)
     return content.strip()
@@ -114,11 +114,11 @@ async def start_reading_session(
         if not book:
             raise HTTPException(status_code=404, detail="Book not found")
         
-        # Store current position in memory
+        
         position_key = f"{current_user.id}_{book_id}"
         current_positions[position_key] = current_position
         
-        # Calculate pages read based on position change
+        
         if not book.archive_id:
             raise HTTPException(status_code=404, detail="Book content not available")
             
@@ -126,16 +126,16 @@ async def start_reading_session(
         response = requests.get(content_url)
         total_chars = len(response.text) if response.status_code == 200 else 1
         
-        # Estimate pages read based on position
+      
         chars_per_page = 1800
         pages_read = max(1, (current_position // chars_per_page))
         
-        # Create a new reading session (duration will be updated when session ends)
+        
         reading_session = ReadingSession(
             user_id=current_user.id,
             book_id=book_id,
             pages_read=pages_read,
-            duration_minutes=0,  # Will be updated when session ends
+            duration_minutes=0,  
             session_date=func.now()
         )
         
@@ -178,16 +178,16 @@ async def end_reading_session(
         if not reading_session:
             raise HTTPException(status_code=404, detail="Reading session not found")
         
-        # Update session with duration and recalculate pages
+       
         reading_session.duration_minutes = duration_minutes
         
-        # Update current position
+        
         position_key = f"{current_user.id}_{reading_session.book_id}"
         current_positions[position_key] = final_position
         
         db.commit()
         
-        # Calculate total reading stats
+        
         total_stats = db.query(
             func.sum(ReadingSession.duration_minutes).label('total_time'),
             func.sum(ReadingSession.pages_read).label('total_pages')
@@ -221,11 +221,11 @@ async def get_reading_stats(
         if not book:
             raise HTTPException(status_code=404, detail="Book not found")
         
-        # Get current position from memory
+        
         position_key = f"{current_user.id}_{book_id}"
         current_position = current_positions.get(position_key, 0)
         
-        # Get book content for progress calculation
+        
         total_chars = 0
         if book.archive_id:
             content_url = f"https://archive.org/download/{book.archive_id}/{book.archive_id}.txt"
@@ -233,7 +233,7 @@ async def get_reading_stats(
             if response.status_code == 200:
                 total_chars = len(response.text)
         
-        # Get reading sessions statistics
+       
         stats = db.query(
             func.count(ReadingSession.id).label('session_count'),
             func.sum(ReadingSession.duration_minutes).label('total_time'),

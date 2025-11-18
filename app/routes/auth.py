@@ -16,7 +16,7 @@ def generate_username_suggestions(base_username: str, db: Session) -> list[str]:
     suggestions = []
     base_username = base_username.lower().strip()
     
-    # Strategy 1: Add numbers
+   
     for i in range(1, 6):
         suggestion = f"{base_username}{i}"
         existing = db.query(User).filter(User.username == suggestion).first()
@@ -25,7 +25,7 @@ def generate_username_suggestions(base_username: str, db: Session) -> list[str]:
         if len(suggestions) >= 3:
             return suggestions
     
-    # Strategy 2: Add random characters
+    
     for _ in range(5):
         suggestion = f"{base_username}_{''.join(random.choices(string.ascii_lowercase + string.digits, k=3))}"
         existing = db.query(User).filter(User.username == suggestion).first()
@@ -34,7 +34,7 @@ def generate_username_suggestions(base_username: str, db: Session) -> list[str]:
         if len(suggestions) >= 3:
             return suggestions
     
-    # Strategy 3: Add "reader" or "book" suffix
+    
     suffixes = ['reader', 'booklover', 'reader', 'bookworm', 'bibliophile']
     for suffix in suffixes:
         suggestion = f"{base_username}_{suffix}"
@@ -61,7 +61,6 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # CHANGED: Now using username as the unique identifier in tokens
     username = payload.get("sub")
     if not username:
         raise HTTPException(
@@ -69,7 +68,6 @@ def get_current_user(
             detail="Invalid token",
         )
     
-    # CHANGED: Query user by username instead of ID
     user = db.query(User).filter(User.username == username).first()
     if not user:
         raise HTTPException(
@@ -82,10 +80,8 @@ def get_current_user(
 @router.post("/register", response_model=Token)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """Register a new user"""
-    # Check if username already exists
     existing_user_by_username = db.query(User).filter(User.username == user_data.username).first()
     if existing_user_by_username:
-        # Generate smart suggestions for available usernames
         suggestions = generate_username_suggestions(user_data.username, db)
         
         raise HTTPException(
@@ -97,7 +93,6 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
             }
         )
     
-    # Check if email already exists
     existing_user_by_email = db.query(User).filter(User.email == user_data.email).first()
     if existing_user_by_email:
         raise HTTPException(
@@ -108,10 +103,8 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
             }
         )
     
-    # Hash password
     hashed_password = get_password_hash(user_data.password)
     
-    # Create user
     db_user = User(
         username=user_data.username,
         email=user_data.email,
@@ -122,7 +115,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     
-    # CHANGED: Store username in token instead of user ID
+    
     access_token = create_access_token(data={"sub": db_user.username})
     
     return Token(
@@ -134,7 +127,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=Token)
 async def login(login_data: UserLogin, db: Session = Depends(get_db)):
     """Login user with username and password"""
-    # CHANGED: Only check by username (not email)
+    
     user = db.query(User).filter(User.username == login_data.username).first()
     
     if not user or not verify_password(login_data.password, user.password_hash):
@@ -143,7 +136,7 @@ async def login(login_data: UserLogin, db: Session = Depends(get_db)):
             detail="Invalid username or password"
         )
     
-    # CHANGED: Store username in token instead of user ID
+    
     access_token = create_access_token(data={"sub": user.username})
     
     return Token(
@@ -157,7 +150,7 @@ async def get_me(current_user: UserResponse = Depends(get_current_user)):
     """Get current user profile"""
     return current_user
 
-# NEW: Endpoint to check username availability
+
 @router.get("/check-username/{username}")
 async def check_username_availability(username: str, db: Session = Depends(get_db)):
     """Check if a username is available and suggest alternatives if taken"""

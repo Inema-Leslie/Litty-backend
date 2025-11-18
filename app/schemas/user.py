@@ -29,7 +29,7 @@ class Token(BaseModel):
     token_type: str
     user: UserResponse
 
-# For challenge routes - we need a simple user schema
+
 class UserSchema(BaseModel):
     id: int
     username: str

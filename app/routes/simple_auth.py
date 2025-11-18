@@ -15,7 +15,7 @@ security = HTTPBearer()
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """Register a new user"""
     try:
-        # Check if username already exists
+        
         existing_user = db.query(User).filter(User.username == user_data.username).first()
         if existing_user:
             raise HTTPException(
@@ -23,7 +23,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
                 detail="Username already registered"
             )
         
-        # Check if email already exists
+       
         existing_email = db.query(User).filter(User.email == user_data.email).first()
         if existing_email:
             raise HTTPException(
@@ -31,7 +31,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
                 detail="Email already registered"
             )
         
-        # Create new user
+        
         hashed_password = get_password_hash(user_data.password)
         user = User(
             username=user_data.username,
@@ -45,7 +45,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user)
         
-        # Create access token
+        
         access_token = create_access_token(
             data={"sub": user.username},
             expires_delta=timedelta(minutes=30)
@@ -71,7 +71,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
 async def login(login_data: UserLogin, db: Session = Depends(get_db)):
     """Login user"""
     try:
-        # Find user by username
+        
         user = db.query(User).filter(User.username == login_data.username).first()
         if not user or not verify_password(login_data.password, user.password_hash):
             raise HTTPException(
@@ -80,7 +80,7 @@ async def login(login_data: UserLogin, db: Session = Depends(get_db)):
                 headers={"WWW-Authenticate": "Bearer"},
             )
         
-        # Create access token
+        
         access_token = create_access_token(
             data={"sub": user.username},
             expires_delta=timedelta(minutes=30)

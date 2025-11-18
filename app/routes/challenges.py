@@ -10,7 +10,7 @@ from app.utils.auth import get_current_user
 
 router = APIRouter(prefix="/challenges", tags=["challenges"])
 
-# CHANGED: Remove response_model temporarily to fix circular imports
+
 @router.get("/")
 def get_challenges(
     db: Session = Depends(get_db),
@@ -20,7 +20,7 @@ def get_challenges(
     challenges = db.query(Challenge).filter(Challenge.is_active == True).all()
     return challenges
 
-# CHANGED: Remove response_model temporarily to fix circular imports
+
 @router.get("/user/progress")
 def get_user_challenges(
     db: Session = Depends(get_db),
@@ -40,7 +40,7 @@ def start_challenge(
 ):
     """User opts into a challenge"""
     
-    # Check if challenge exists and is active
+   
     challenge = db.query(Challenge).filter(
         Challenge.id == challenge_id,
         Challenge.is_active == True
@@ -49,7 +49,7 @@ def start_challenge(
     if not challenge:
         raise HTTPException(status_code=404, detail="Challenge not found")
     
-    # Check if user already has this challenge
+    
     existing = db.query(UserChallenge).filter(
         UserChallenge.user_id == current_user.id,
         UserChallenge.challenge_id == challenge_id
@@ -58,7 +58,7 @@ def start_challenge(
     if existing:
         raise HTTPException(status_code=400, detail="Already enrolled in this challenge")
     
-    # Create user challenge entry
+    
     user_challenge = UserChallenge(
         user_id=current_user.id,
         challenge_id=challenge_id,
@@ -94,7 +94,7 @@ def abandon_challenge(
     
     return {"message": "Challenge abandoned successfully"}
 
-# CHANGED: Remove response_model temporarily to fix circular imports
+
 @router.get("/user/challenges")
 def get_user_challenges_alt(
     db: Session = Depends(get_db),

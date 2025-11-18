@@ -13,32 +13,32 @@ async def search_and_read_book(query: str):
     try:
         print(f"🔍 Search and read: '{query}'")
         
-        # Search Project Gutenberg
+        
         search_results = await search_gutenberg(query)
         
         if not search_results:
             raise HTTPException(status_code=404, detail="No books found for this query")
         
-        # Use the first result
+       
         book_info = search_results[0]
         print(f"📖 Selected book: {book_info['title']} by {book_info['author']}")
         
-        # Get content from Project Gutenberg
+        
         content = await fetch_gutenberg_content(book_info['id'])
         
         if not content:
             raise HTTPException(status_code=404, detail="Book content not available")
         
-        # Clean and format content
+        
         cleaned_content = clean_gutenberg_content(content)
         
-        # Calculate realistic stats
+        
         word_count = len(cleaned_content.split())
-        estimated_pages = max(1, word_count // 250)  # 250 words per page
+        estimated_pages = max(1, word_count // 250)  
         
         print(f"📊 Content stats: {len(cleaned_content)} chars, {word_count} words, ~{estimated_pages} pages")
         
-        # Return FULL content without truncation
+        
         return {
             "search_query": query,
             "book": {
@@ -69,11 +69,11 @@ async def search_gutenberg(query: str, max_results: int = 10) -> List[Dict]:
     try:
         print(f"🌐 Searching Project Gutenberg for: '{query}'")
         
-        # Project Gutenberg search API
+        
         search_url = "https://gutendex.com/books/"
         params = {
             'search': query,
-            'languages': 'en',  # English books only
+            'languages': 'en',  
         }
         
         response = requests.get(search_url, params=params, timeout=30)
@@ -87,7 +87,7 @@ async def search_gutenberg(query: str, max_results: int = 10) -> List[Dict]:
         
         print(f"📚 Found {len(books)} books on Project Gutenberg")
         
-        # Format results
+       
         formatted_books = []
         for book in books[:max_results]:
             authors = [author['name'] for author in book.get('authors', [])]
@@ -115,8 +115,7 @@ async def fetch_gutenberg_content(book_id: int) -> str:
     try:
         print(f"📖 Fetching Gutenberg content for book ID: {book_id}")
         
-        # Get the actual text content
-        # Project Gutenberg uses various mirrors - we'll try a few
+        
         mirrors = [
             f"https://www.gutenberg.org/cache/epub/{book_id}/pg{book_id}.txt",
             f"https://www.gutenberg.org/files/{book_id}/{book_id}-0.txt",
@@ -149,10 +148,10 @@ def clean_gutenberg_content(content: str) -> str:
         if not content:
             return ""
             
-        # Remove Gutenberg headers and footers
+        
         lines = content.split('\n')
         
-        # Find start of actual content (after header)
+        
         start_index = 0
         header_patterns = [
             "START OF THIS PROJECT GUTENBERG EBOOK",
@@ -167,7 +166,7 @@ def clean_gutenberg_content(content: str) -> str:
                 print(f"📖 Found content start at line {i}")
                 break
         
-        # Find end of content (before footer)
+        
         end_index = len(lines)
         footer_patterns = [
             "END OF THIS PROJECT GUTENBERG EBOOK",
@@ -182,14 +181,14 @@ def clean_gutenberg_content(content: str) -> str:
                 print(f"📖 Found content end at line {i}")
                 break
         
-        # Extract main content
+        
         if start_index > 0 and end_index > start_index:
             content = '\n'.join(lines[start_index:end_index])
             print(f"📖 Extracted content: {len(content):,} characters")
         else:
             print("📖 Using full content (no headers/footers found)")
         
-        # Clean up excessive whitespace but preserve paragraph structure
+        
         content = re.sub(r'\n\s*\n', '\n\n', content)
         content = re.sub(r'[ \t]+\n', '\n', content)
         
@@ -208,7 +207,7 @@ async def test_gutenberg_search(query: str = "sherlock holmes"):
     try:
         results = await search_gutenberg(query, max_results=5)
         
-        # Test content availability for first result
+        
         if results:
             first_book = results[0]
             content = await fetch_gutenberg_content(first_book['id'])
@@ -234,7 +233,7 @@ async def test_gutenberg_search(query: str = "sherlock holmes"):
 async def test_gutenberg_book(book_id: int):
     """Test specific Project Gutenberg book"""
     try:
-        # Get book info
+        
         info_url = f"https://gutendex.com/books/{book_id}"
         response = requests.get(info_url)
         
@@ -243,7 +242,7 @@ async def test_gutenberg_book(book_id: int):
         
         book_info = response.json()
         
-        # Get content
+        
         content = await fetch_gutenberg_content(book_id)
         content_available = bool(content)
         
@@ -278,9 +277,7 @@ async def get_popular_books():
         
         if response.status_code == 200:
             data = response.json()
-            books = data.get('results', [])[:10]  # Top 10 popular
-            
-            # Check content availability for each
+            books = data.get('results', [])[:10]  
             for book in books:
                 content = await fetch_gutenberg_content(book['id'])
                 book['content_available'] = bool(content)
