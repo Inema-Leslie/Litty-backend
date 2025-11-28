@@ -1,4 +1,4 @@
-# app/routes/simple_auth.py - COMPLETE FIXED VERSION
+# app/routes/simple_auth.py 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from app.utils.database import get_db
 from app.utils.auth import verify_token, get_password_hash, verify_password, create_access_token
-from app.models.user import User, UserCreate, UserResponse, Token, UserLogin  # ALL CORRECT IMPORTS
+from app.models.user import User, UserCreate, UserResponse, Token, UserLogin
 
 router = APIRouter()
 security = HTTPBearer()

@@ -9,7 +9,7 @@ from app.utils.database import Base
 
 class UserLibrary(Base):
     __tablename__ = "user_library"
-    __table_args__ = {'extend_existing': True}  # ADD THIS LINE
+    __table_args__ = {'extend_existing': True}  
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
@@ -36,11 +36,11 @@ class UserLibraryCreate(UserLibraryBase):
 class UserLibraryResponse(UserLibraryBase):
     id: int
     added_at: datetime
-    book: 'BookResponse'  # We'll forward declare this
+    book: 'BookResponse'  
     
     class Config:
         from_attributes = True
 
-# Forward declaration fix
+
 from app.models.book import BookResponse
 UserLibraryResponse.update_forward_refs()

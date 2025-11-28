@@ -36,7 +36,7 @@ class UserChallengeResponse(BaseModel):
     completed_date: Optional[datetime] = None
     started_date: datetime
     
-    # Use string annotation - don't import ChallengeResponse here
+
     challenge: 'ChallengeResponse'
 
     class Config:
